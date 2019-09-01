@@ -64,9 +64,14 @@
 
 int VIDEOMODE_windowed = 1;
 
+#if defined(NDS)
+int VIDEOMODE_horizontal_area = VIDEOMODE_HORIZONTAL_NARROW;
+int VIDEOMODE_vertical_area = VIDEOMODE_VERTICAL_SHORT;
+#else
 int VIDEOMODE_horizontal_area = VIDEOMODE_HORIZONTAL_TV;
-unsigned int VIDEOMODE_custom_horizontal_area = Screen_WIDTH;
 int VIDEOMODE_vertical_area = VIDEOMODE_VERTICAL_TV;
+#endif
+unsigned int VIDEOMODE_custom_horizontal_area = Screen_atari_WIDTH;
 unsigned int VIDEOMODE_custom_vertical_area = Screen_HEIGHT;
 int VIDEOMODE_horizontal_offset = 0;
 int VIDEOMODE_vertical_offset = 0;
@@ -166,9 +171,9 @@ static unsigned int DownscaleWidthNtsc(unsigned int w);
 
 /* TODO determine pixel aspect ratio for 80 column cards. */
 static display_mode_t display_modes[VIDEOMODE_MODE_SIZE] = {
-	{ 320, 200, Screen_WIDTH, Screen_HEIGHT, 1, 1, 1.0, &ReturnSame, &ReturnSame }
+	{ 320, 200, Screen_atari_WIDTH, Screen_HEIGHT, 1, 1, 1.0, &ReturnSame, &ReturnSame }
 #if NTSC_FILTER
-	, { 640, 400, Screen_WIDTH, Screen_HEIGHT, 1, 2, 0.5, &UpscaleWidthNtsc, &DownscaleWidthNtsc, }
+	, { 640, 400, Screen_atari_WIDTH, Screen_HEIGHT, 1, 2, 0.5, &UpscaleWidthNtsc, &DownscaleWidthNtsc, }
 #endif
 #ifdef XEP80_EMULATION
 	, { XEP80_SCRN_WIDTH, 400, XEP80_SCRN_WIDTH, XEP80_MAX_SCRN_HEIGHT, 2, 2, 0.5, &ReturnSame, &ReturnSame }

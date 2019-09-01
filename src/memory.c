@@ -54,8 +54,8 @@ UBYTE MEMORY_attrib[65536];
 
 #else /* PAGED_ATTRIB */
 
-MEMORY_rdfunc MEMORY_readmap[256];
-MEMORY_wrfunc MEMORY_writemap[256];
+DTCM_BSS MEMORY_rdfunc MEMORY_readmap[256];
+DTCM_BSS MEMORY_wrfunc MEMORY_writemap[256];
 
 typedef struct map_save {
 	int     code;
