@@ -55,6 +55,9 @@ ULONG *Screen_atari_b = NULL;
 ULONG *Screen_atari1 = NULL;
 ULONG *Screen_atari2 = NULL;
 #endif
+#ifdef NDS_SCREEN_IN_VRAM
+ULONG *Screen_atari_ui = NULL;
+#endif
 
 /* The area that can been seen is Screen_visible_x1 <= x < Screen_visible_x2,
    Screen_visible_y1 <= y < Screen_visible_y2.
@@ -159,6 +162,16 @@ int Screen_Initialise(int *argc, char *argv[])
 		return TRUE;
 
 	if (Screen_atari == NULL) { /* platform-specific code can initialize it */
+#ifdef NDS_SCREEN_IN_VRAM
+		Screen_atari = (ULONG *) 0x06000000;
+		Screen_atari_ui = (ULONG *) Util_malloc(Screen_HEIGHT * Screen_WIDTH);
+		memset(Screen_atari_ui, 0, Screen_HEIGHT * Screen_WIDTH);
+# ifdef BITPL_SCR
+		Screen_atari_b = (ULONG *) 0x06020000;
+		Screen_atari1 = Screen_atari;
+		Screen_atari2 = Screen_atari_b;
+# endif
+#else
 		Screen_atari = (ULONG *) Util_malloc(Screen_HEIGHT * Screen_WIDTH);
 		/* Clear the screen. */
 		memset(Screen_atari, 0, Screen_HEIGHT * Screen_WIDTH);
@@ -171,6 +184,7 @@ int Screen_Initialise(int *argc, char *argv[])
 		memset(Screen_atari_b, 0, Screen_HEIGHT * Screen_WIDTH);
 		Screen_atari1 = Screen_atari;
 		Screen_atari2 = Screen_atari_b;
+#endif
 #endif
 	}
 
@@ -355,6 +369,27 @@ static void SmallFont_DrawChar(UBYTE *screen, int ch, UBYTE color1, UBYTE color2
 		}
 	};
 	int y;
+#ifdef SCREEN_NO_8BIT_WRITES
+	// TODO: This can be made a bit faster.
+	for (y = 0; y < SMALLFONT_HEIGHT; y++) {
+		int src;
+		int mask;
+		src = font[ch][y];
+		for (mask = 1 << (SMALLFONT_WIDTH - 1); mask != 0; mask >>= 1) {
+			UBYTE rep = ((src & mask) != 0 ? color1 : color2);
+			UWORD *ptr = (UWORD*) (((ULONG)screen)&(~1));
+			if (!(((ULONG) screen) & 1)) {
+				// right pixel
+				*ptr = (*ptr & 0xFF00) | rep;
+			} else {
+				// left pixel
+				*ptr = (*ptr & 0x00FF) | (rep << 8);
+			}
+			screen++;
+		}
+		screen += Screen_WIDTH - SMALLFONT_WIDTH;
+	}
+#else
 	for (y = 0; y < SMALLFONT_HEIGHT; y++) {
 		int src;
 		int mask;
@@ -365,6 +400,7 @@ static void SmallFont_DrawChar(UBYTE *screen, int ch, UBYTE color1, UBYTE color2
 		}
 		screen += Screen_WIDTH - SMALLFONT_WIDTH;
 	}
+#endif
 }
 
 /* Returns screen address for placing the next character on the left of the

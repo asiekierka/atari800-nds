@@ -165,6 +165,10 @@ extern int op_filtering;
 extern float op_zoom;
 #endif /* RPI */
 
+#ifdef UI_DPAD_AS_KEYBOARD
+extern int dpad_as_keyboard;
+#endif
+
 UI_tDriver *UI_driver = &UI_BASIC_driver;
 
 int UI_is_active = FALSE;
@@ -3723,7 +3727,7 @@ static void ControllerConfiguration(void)
 	};
 #endif
 
-#if !defined(_WIN32_WCE) && !defined(DREAMCAST)
+#if !defined(_WIN32_WCE) && !defined(DREAMCAST) && !defined(NDS)
 	static const UI_tMenuItem mouse_mode_menu_array[] = {
 		UI_MENU_ACTION(0, "None"),
 		UI_MENU_ACTION(1, "Paddles"),
@@ -3740,6 +3744,13 @@ static void ControllerConfiguration(void)
 	static char mouse_port_status[2] = { '1', '\0' };
 	static char mouse_speed_status[2] = { '1', '\0' };
 #endif
+#ifdef UI_DPAD_AS_KEYBOARD
+	static const UI_tMenuItem dpad_map_menu_array[] = {
+		UI_MENU_ACTION(0, "Joystick"),
+		UI_MENU_ACTION(1, "Keyboard"),
+		UI_MENU_END
+	};
+#endif
 	static UI_tMenuItem menu_array[] = {
 		UI_MENU_ACTION(0, "Joystick autofire:"),
 		UI_MENU_CHECK(1, "Enable MultiJoy4:"),
@@ -3749,10 +3760,13 @@ static void ControllerConfiguration(void)
 		UI_MENU_CHECK(9, "Emulate Paddles:"),
 		UI_MENU_ACTION(10, "Joystick/D-Pad configuration"),
 		UI_MENU_ACTION(11, "Button configuration"),
-#else
+#elif !defined(NDS)
 		UI_MENU_SUBMENU_SUFFIX(2, "Mouse device: ", NULL),
 		UI_MENU_SUBMENU_SUFFIX(3, "Mouse port:", mouse_port_status),
 		UI_MENU_SUBMENU_SUFFIX(4, "Mouse speed:", mouse_speed_status),
+#endif
+#ifdef UI_DPAD_AS_KEYBOARD
+		UI_MENU_SUBMENU_SUFFIX(9, "D-Pad maps to:", NULL),
 #endif
 #ifdef GUI_SDL
 		UI_MENU_CHECK(5, "Enable keyboard joystick 1:"),
@@ -3789,10 +3803,13 @@ static void ControllerConfiguration(void)
 		SetItemChecked(menu_array, 5, virtual_joystick);
 #elif defined(DREAMCAST)
 		SetItemChecked(menu_array, 9, emulate_paddles);
-#else
+#elif !defined(NDS)
 		menu_array[2].suffix = mouse_mode_menu_array[INPUT_mouse_mode].item;
 		mouse_port_status[0] = (char) ('1' + INPUT_mouse_port);
 		mouse_speed_status[0] = (char) ('0' + INPUT_mouse_speed);
+#endif
+#if defined(NDS) && defined(UI_DPAD_AS_KEYBOARD)
+		menu_array[2].suffix = dpad_map_menu_array[dpad_as_keyboard].item;
 #endif
 #ifdef GUI_SDL
 		SetItemChecked(menu_array, 5, PLATFORM_kbd_joy_0_enabled);
@@ -3837,6 +3854,7 @@ static void ControllerConfiguration(void)
 			ButtonConfiguration();
 			break;
 #else
+#if !defined(NDS)
 		case 2:
 			option2 = UI_driver->fSelect(NULL, UI_SELECT_POPUP, INPUT_mouse_mode, mouse_mode_menu_array, NULL);
 			if (option2 >= 0)
@@ -3848,6 +3866,14 @@ static void ControllerConfiguration(void)
 		case 4:
 			INPUT_mouse_speed = UI_driver->fSelectInt(INPUT_mouse_speed, 1, 9);
 			break;
+#endif
+#if defined(UI_DPAD_AS_KEYBOARD)
+		case 9:
+			option2 = UI_driver->fSelect(NULL, UI_SELECT_POPUP, dpad_as_keyboard, dpad_map_menu_array, NULL);
+			if (option2 >= 0)
+				dpad_as_keyboard = option2;
+			break;
+#endif
 #endif
 #ifdef GUI_SDL
 		case 5:
@@ -4329,6 +4355,11 @@ void UI_Run(void)
 
 	UI_is_active = TRUE;
 
+#ifdef NDS_SCREEN_IN_VRAM
+	ULONG *Screen_atari_real = Screen_atari;
+	Screen_atari = Screen_atari_ui;
+#endif
+
 #ifdef DIRECTX
 	setcursor();
 	snprintf(desktopreslabel, sizeof(desktopreslabel), "Desktop [%dx%d]", origScreenWidth, origScreenHeight);
@@ -4485,6 +4516,10 @@ void UI_Run(void)
 			exit(0);
 		}
 	}
+
+#ifdef NDS_SCREEN_IN_VRAM
+	Screen_atari = Screen_atari_real;
+#endif
 
 	/* Sound_Active(TRUE); */
 	UI_is_active = FALSE;
