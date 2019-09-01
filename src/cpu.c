@@ -108,7 +108,7 @@ UBYTE CPU_IRQ;
 /* Windows headers define it */
 #undef ABSOLUTE
 
-#ifndef __GNUC__
+#if !defined(__GNUC__) || defined(NDS)
 #define NO_GOTO
 #endif
 
@@ -185,24 +185,24 @@ UBYTE CPU_IRQ;
 #endif /* NEW_CYCLE_EXACT */
 
 /* 6502 registers. */
-UWORD CPU_regPC;
-UBYTE CPU_regA;
-UBYTE CPU_regX;
-UBYTE CPU_regY;
-UBYTE CPU_regP;						/* Processor Status Byte (Partial) */
-UBYTE CPU_regS;
+DTCM_BSS UWORD CPU_regPC;
+DTCM_BSS UBYTE CPU_regA;
+DTCM_BSS UBYTE CPU_regX;
+DTCM_BSS UBYTE CPU_regY;
+DTCM_BSS UBYTE CPU_regP;						/* Processor Status Byte (Partial) */
+DTCM_BSS UBYTE CPU_regS;
 
 /* Transfer 6502 registers between global variables and local variables inside CPU_GO() */
 #define UPDATE_GLOBAL_REGS  CPU_regPC = GET_PC(); CPU_regS = S; CPU_regA = A; CPU_regX = X; CPU_regY = Y
 #define UPDATE_LOCAL_REGS   SET_PC(CPU_regPC); S = CPU_regS; A = CPU_regA; X = CPU_regX; Y = CPU_regY
 
 /* 6502 flags local to this module */
-static UBYTE N;					/* bit7 set => N flag set */
+DTCM_BSS static UBYTE N;					/* bit7 set => N flag set */
 #ifndef NO_V_FLAG_VARIABLE
-static UBYTE V;                 /* non-zero => V flag set */
+DTCM_BSS static UBYTE V;                 /* non-zero => V flag set */
 #endif
-static UBYTE Z;					/* zero     => Z flag set */
-static UBYTE C;					/* must be 0 or 1 */
+DTCM_BSS static UBYTE Z;					/* zero     => Z flag set */
+DTCM_BSS static UBYTE C;					/* must be 0 or 1 */
 /* B, D, I are always in CPU_regP */
 
 void CPU_GetStatus(void)
@@ -354,7 +354,7 @@ void CPU_NMI(void)
 
 
 /*	0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F */
-static const int cycles[256] =
+DTCM_DATA static u8 cycles[256] =
 {
 	7, 6, 2, 8, 3, 3, 5, 5, 3, 2, 2, 2, 4, 4, 6, 6,		/* 0x */
 	2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,		/* 1x */

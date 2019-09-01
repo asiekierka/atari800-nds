@@ -6,6 +6,15 @@ ifeq ($(strip $(DEVKITARM)),)
 $(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
 endif
 
+BASE_CFLAGS	:=	-g -Wall -D_GNU_SOURCE \
+			-fomit-frame-pointer -ffast-math \
+			$(ARCH)
+
+BASE_CFLAGS	+=	$(INCLUDE) -DNDS -DARM9
+
+$(FAST_OFILES): CFLAGS := $(BASE_CFLAGS) -O3
+$(SMALL_OFILES): CFLAGS := $(BASE_CFLAGS) -Os
+
 TOPDIR ?= $(CURDIR)
 include $(DEVKITARM)/ds_rules
 
@@ -34,6 +43,7 @@ INCLUDES	:=	src
 
 #	src/af80.c \
 #	src/bit3.c \
+#	src/mzpokeysnd.c \
 #	src/pal_blending.c \
 #	src/pbi_proto80.c \
 #	src/pbi_bb.c \
@@ -49,49 +59,30 @@ INCLUDES	:=	src
 GRAPHICS = \
 	src/nds/keyboard.png
 
-SOURCES = \
+SMALL_SOURCES = \
 	src/afile.c \
-	src/antic.c \
 	src/artifact.c \
-	src/atari.c \
 	src/binload.c \
-	src/cartridge.c \
-	src/cassette.c \
-	src/compfile.c \
 	src/cfg.c \
 	src/colours.c \
 	src/colours_external.c \
 	src/colours_ntsc.c \
 	src/colours_pal.c \
-	src/cpu.c \
+	src/compfile.c \
 	src/crc32.c \
-	src/cycle_map.c \
-	src/devices.c \
 	src/esc.c \
-	src/gtia.c \
 	src/ide.c \
 	src/img_tape.c \
-	src/input.c \
-	src/log.c \
-	src/memory.c \
 	src/monitor.c \
-	src/mzpokeysnd.c \
 	src/pbi.c \
 	src/pbi_scsi.c \
-	src/pia.c \
-	src/pokey.c \
-	src/pokeysnd.c \
-	src/remez.c \
 	src/rtime.c \
-	src/screen.c \
 	src/sio.c \
 	src/sndsave.c \
-	src/sound.c \
 	src/statesav.c \
 	src/sysrom.c \
 	src/ui.c \
 	src/ui_basic.c \
-	src/util.c \
 	src/videomode.c \
 	src/votrax.c \
 	src/votraxsnd.c \
@@ -99,22 +90,39 @@ SOURCES = \
 	src/roms/altirra_basic.c \
 	src/roms/altirraos_800.c \
 	src/roms/altirraos_xl.c \
-	src/nds/main.c \
+	src/nds/main.c
+
+FAST_SOURCES = \
+	src/antic.c \
+	src/atari.c \
+	src/cartridge.c \
+	src/cassette.c \
+	src/cpu.c \
+	src/cycle_map.c \
+	src/devices.c \
+	src/gtia.c \
+	src/input.c \
+	src/log.c \
+	src/memory.c \
+	src/pia.c \
+	src/pokey.c \
+	src/pokeysnd.c \
+	src/remez.c \
+	src/screen.c \
+	src/sound.c \
+	src/util.c \
 	src/nds/input.c \
 	src/nds/sound.c \
 	src/nds/video.c
+
+SOURCES = $(SMALL_SOURCES) $(FAST_SOURCES)
 
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
 ARCH	:=	-marm -mthumb-interwork -march=armv5te -mtune=arm946e-s
 
-CFLAGS	:=	-g -Wall -O3 -flto=jobserver -D_GNU_SOURCE \
-			-fomit-frame-pointer -ffast-math \
-			$(ARCH)
-
-CFLAGS	+=	$(INCLUDE) -DNDS -DARM9
-CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions
+CXXFLAGS	:= $(BASE_CFLAGS) -fno-rtti -fno-exceptions
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=ds_arm9.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
@@ -126,6 +134,12 @@ LIBS := -lfat -lmm9 -lnds9 -lz -lm
 #---------------------------------------------------------------------------------
 LIBDIRS	:= $(LIBNDS) $(DEVKITPRO)/portlibs/nds $(DEVKITPRO)/portlibs/armv5te
 
+# fast/slow cflags patch
+SMALL_CFILES		:=	$(foreach dir,$(SMALL_SOURCES),$(CURDIR)/$(dir))
+FAST_CFILES		:=	$(foreach dir,$(FAST_SOURCES),$(CURDIR)/$(dir))
+
+export SMALL_OFILES	:=	$(SMALL_CFILES:.c=.o)
+export FAST_OFILES	:=	$(FAST_CFILES:.c=.o)
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional

@@ -77,8 +77,8 @@ int PLATFORM_Initialise(int *argc, char *argv[])
 
 	mm_ds_system sys;
 	sys.mod_count = 0;
-	sys.samp_count = 0;
-	sys.mem_bank = 0;
+	sys.samp_count = 1;
+	sys.mem_bank = NULL;
 	sys.fifo_channel = FIFO_MAXMOD;
 	mmInit(&sys);
 
@@ -123,6 +123,7 @@ int main(int argc, char **argv)
 		Atari800_Frame();
 		if (Atari800_display_screen)
 			PLATFORM_DisplayScreen();
+		mmStreamUpdate();
 	}
 }
 

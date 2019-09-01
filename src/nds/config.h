@@ -413,7 +413,7 @@
 #define PACKAGE_VERSION "4.0.0"
 
 /* Define to use page-based attribute array. */
-// #define PAGED_ATTRIB 1
+#define PAGED_ATTRIB 1
 
 /* Use accurate PAL color blending. */
 /* #undef PAL_BLENDING */
@@ -590,6 +590,7 @@
 /* #undef volatile */
 
 // NDS-specific
+#include <nds/ndstypes.h>
 #define NDS_SCREEN_IN_VRAM
 #define SCREEN_NO_8BIT_WRITES
 #define UI_DPAD_AS_KEYBOARD

@@ -41,9 +41,6 @@ mm_word NDS_AudioCallback(mm_word length, mm_addr dest, mm_stream_formats format
 
 int PLATFORM_SoundSetup(Sound_setup_t *setup)
 {
-	POKEYSND_enable_new_pokey = FALSE;
-	POKEYSND_bienias_fix = FALSE;
-
 	if (setup->freq > 32768)
 		setup->freq = 32768;
 	else if (setup->freq < 1024)
@@ -51,7 +48,7 @@ int PLATFORM_SoundSetup(Sound_setup_t *setup)
 
 	if (setup->sample_size > 2)
 		return FALSE;
-	if (setup->channels > 2)
+	else if (setup->channels > 2)
 		return FALSE;
 
 	if (setup->buffer_frames < (setup->freq / 32))
@@ -66,7 +63,7 @@ int PLATFORM_SoundSetup(Sound_setup_t *setup)
 	NDS_stream.callback = NDS_AudioCallback;
 	NDS_stream.format = ((setup->channels == 2) ? 1 : 0) | ((setup->sample_size == 2) ? 2 : 0);
 	NDS_stream.timer = MM_TIMER3;
-	NDS_stream.manual = false;
+	NDS_stream.manual = TRUE;
 
 	NDS_sound = setup;
 	mmStreamOpen(&NDS_stream);
@@ -96,14 +93,17 @@ void PLATFORM_SoundUnlock(void)
 
 void PLATFORM_SoundExit(void)
 {
+	mmStreamClose();
 }
 
 void PLATFORM_SoundPause(void)
 {
 	audio_paused = 1;
+	mmStreamClose();
 }
 
 void PLATFORM_SoundContinue(void)
 {
 	audio_paused = 0;
+	mmStreamOpen(&NDS_stream);
 }

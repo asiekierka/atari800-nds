@@ -165,14 +165,21 @@ static int mz_quality = 0;		/* default quality for mzpokeysnd */
 int mz_clear_regs = 0;
 #endif
 
+#if defined(NDS)
+int POKEYSND_enable_new_pokey = FALSE;
+int POKEYSND_bienias_fix = FALSE;
+#else
+>>>>>>> filesize, speed optimizations; rendering fixes
 #ifndef __MINT__
 int POKEYSND_enable_new_pokey = TRUE;
 #else
 /* too slow on Falcon */
 int POKEYSND_enable_new_pokey = FALSE;
 #endif
+#endif
 
 int POKEYSND_bienias_fix = TRUE;  /* when TRUE, high frequencies get emulated: better sound but slower */
+#endif
 #if defined(__PLUS) && !defined(_WX_)
 #define BIENIAS_FIX (g_Sound.nBieniasFix)
 #else
@@ -301,6 +308,7 @@ int POKEYSND_DoInit(void)
 	init_vol_only();
 #endif /* VOL_ONLY_SOUND */
 
+#if !defined(NDS)
 	if (POKEYSND_enable_new_pokey)
 		return MZPOKEYSND_Init(snd_freq17, POKEYSND_playback_freq,
 				POKEYSND_num_pokeys, POKEYSND_snd_flags, mz_quality
@@ -309,6 +317,7 @@ int POKEYSND_DoInit(void)
 #endif
 		);
 	else
+#endif
 		return pokeysnd_init_rf(snd_freq17, POKEYSND_playback_freq,
 				POKEYSND_num_pokeys, POKEYSND_snd_flags);
 }

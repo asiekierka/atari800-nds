@@ -3981,7 +3981,9 @@ static int SoundSettings(void)
 #ifdef STEREO_SOUND
 		UI_MENU_CHECK(5, "Dual POKEY (Stereo):"),
 #endif
+#if !defined(NDS)
 		UI_MENU_CHECK(6, "High Fidelity POKEY:"),
+#endif
 #ifdef CONSOLE_SOUND
 		UI_MENU_CHECK(7, "Speaker (Key Click):"),
 #endif
@@ -4112,6 +4114,7 @@ static int SoundSettings(void)
 #endif /* SOUND_THIN_API */
 			break;
 #endif
+#if !defined(NDS)
 		case 6:
 			POKEYSND_enable_new_pokey = !POKEYSND_enable_new_pokey;
 			POKEYSND_DoInit();
@@ -4119,6 +4122,7 @@ static int SoundSettings(void)
 			   a cold-restart only */
 			UI_driver->fMessage("Will reboot to apply the change", 1);
 			return TRUE; /* reboot required */
+#endif
 #ifdef CONSOLE_SOUND
 		case 7:
 			POKEYSND_console_sound_enabled = !POKEYSND_console_sound_enabled;

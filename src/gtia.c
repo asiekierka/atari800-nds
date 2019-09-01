@@ -159,7 +159,7 @@ bit 6 - Missile 2
 bit 7 - Missile 3
 */
 
-UBYTE GTIA_pm_scanline[Screen_atari_WIDTH / 2 + 8];	/* there's a byte for every *pair* of pixels */
+UBYTE GTIA_pm_scanline[Screen_WIDTH / 2 + 8];	/* there's a byte for every *pair* of pixels */
 int GTIA_pm_dirty = TRUE;
 
 #define C_PM0	0x01
