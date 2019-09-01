@@ -40,6 +40,11 @@ TARGET		:=	atari800
 BUILD		:=	build
 #DATA		:=	data
 INCLUDES	:=	src
+GAME_ICON	:=	$(TOPDIR)/src/nds/icon.bmp
+
+GAME_TITLE := atari800-nds
+GAME_SUBTITLE1 := 0.1.0
+GAME_SUBTITLE2 := 2019/09/01
 
 #	src/af80.c \
 #	src/bit3.c \
