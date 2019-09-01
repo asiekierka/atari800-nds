@@ -12,8 +12,8 @@ BASE_CFLAGS	:=	-g -Wall -D_GNU_SOURCE \
 
 BASE_CFLAGS	+=	$(INCLUDE) -DNDS -DARM9
 
-$(FAST_OFILES): CFLAGS := $(BASE_CFLAGS) -O3
-$(SMALL_OFILES): CFLAGS := $(BASE_CFLAGS) -Os
+$(FAST_OFILES): CFLAGS := $(BASE_CFLAGS) -O3 -marm
+$(SMALL_OFILES): CFLAGS := $(BASE_CFLAGS) -Os -mthumb
 
 TOPDIR ?= $(CURDIR)
 include $(DEVKITARM)/ds_rules
@@ -120,7 +120,7 @@ SOURCES = $(SMALL_SOURCES) $(FAST_SOURCES)
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-ARCH	:=	-marm -mthumb-interwork -march=armv5te -mtune=arm946e-s
+ARCH	:=	-mthumb-interwork -march=armv5te -mtune=arm946e-s
 
 CXXFLAGS	:= $(BASE_CFLAGS) -fno-rtti -fno-exceptions
 ASFLAGS	:=	-g $(ARCH)
