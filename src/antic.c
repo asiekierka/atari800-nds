@@ -518,7 +518,7 @@ static int blank_mask;
 
 /* A scanline of AN0 and AN1 signals as transmitted from ANTIC to GTIA.
    In every byte, bit 0 is AN0 and bit 1 is AN1 */
-static UBYTE an_scanline[Screen_WIDTH / 2 + 8];
+static UBYTE an_scanline[Screen_atari_WIDTH / 2 + 8];
 
 /* lookup tables */
 static UBYTE blank_lookup[256];
@@ -3838,7 +3838,7 @@ glitch */
 			extra_cycles[NORMAL0] = 7 + BEFORE_CYCLES;
 			extra_cycles[SCROLL0] = 8 + BEFORE_CYCLES + 8;
 			left_border_chars = 8 - LCHOP;
-			right_border_start = (Screen_WIDTH - 64) / 2;
+			right_border_start = (Screen_atari_WIDTH - 64) / 2;
 			break;
 		case 0x02:
 			chars_read[NORMAL0] = 40;
@@ -3864,7 +3864,7 @@ glitch */
 			extra_cycles[NORMAL0] = 8 + BEFORE_CYCLES + 8;
 			extra_cycles[SCROLL0] = 7 + BEFORE_CYCLES + 16;
 			left_border_chars = 4 - LCHOP;
-			right_border_start = (Screen_WIDTH - 32) / 2;
+			right_border_start = (Screen_atari_WIDTH - 32) / 2;
 			break;
 		case 0x03:
 			chars_read[NORMAL0] = 48;
@@ -3890,7 +3890,7 @@ glitch */
 			extra_cycles[NORMAL0] = 7 + BEFORE_CYCLES + 16;
 			extra_cycles[SCROLL0] = 7 + BEFORE_CYCLES + 16;
 			left_border_chars = 3 - LCHOP;
-			right_border_start = (Screen_WIDTH - 8) / 2;
+			right_border_start = (Screen_atari_WIDTH - 8) / 2;
 			break;
 		}
 
