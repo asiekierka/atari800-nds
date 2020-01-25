@@ -44,21 +44,28 @@
 #endif
 #include "videomode.h"
 
-extern int dpad_as_keyboard;
+extern s8 dpad_as_keyboard;
+extern s8 video_scaler_mode;
 
-int PLATFORM_Configure(char *option, char *parameters)
+static int cfg_read_s8(char *option, char *parameters, const char *desired_option, s8 *desired_location)
 {
-	if (strcmp(option, "NDS_DPAD_MODE") == 0)
-	{
-		sscanf(parameters, "%d", &dpad_as_keyboard);
+	if (strcmp(option, desired_option) == 0) {
+		sscanf(parameters, "%hhd", desired_location);
 		return 1;
 	}
 	return 0;
 }
 
+int PLATFORM_Configure(char *option, char *parameters)
+{
+	return cfg_read_s8(option, parameters, "NDS_DPAD_MODE", &dpad_as_keyboard)
+		|| cfg_read_s8(option, parameters, "NDS_VIDEO_SCALER_MODE", &video_scaler_mode);
+}
+
 void PLATFORM_ConfigSave(FILE *fp)
 {
 	fprintf(fp, "NDS_DPAD_MODE=%d\n", dpad_as_keyboard);
+	fprintf(fp, "NDS_VIDEO_SCALER_MODE=%d\n", video_scaler_mode);
 }
 
 int PLATFORM_Initialise(int *argc, char *argv[])

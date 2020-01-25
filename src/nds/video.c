@@ -35,6 +35,7 @@
 #include "screen.h"
 #include "ui.h"
 #include "util.h"
+#include "video.h"
 #include "videomode.h"
 
 #include "keyboard.h"
@@ -44,17 +45,63 @@ VIDEOMODE_MODE_t NDS_VIDEO_mode;
 extern int NDS_ShouldDrawKeyboard;
 void NDS_DrawKeyboard(u8 *dst, u8 *src, u8 *tmp);
 
+static s16 oldSx = 0, oldSy = 0;
+static int oldVsol = 0;
+static int oldVsot = 0;
+
+s8 video_scaler_mode = VIDEO_SCALER_MODE_BLENDED;
+
 static void vblankHandler(void)
 {
+	s16 sx = VIDEOMODE_src_width;
+	s16 sy = VIDEOMODE_src_height * 4 / 3;
+	int offset_left = VIDEOMODE_src_offset_left;
+	int offset_top = VIDEOMODE_src_offset_top;
+
+	if (video_scaler_mode > 0) {
+		REG_DISPCNT = MODE_5_2D | DISPLAY_BG2_ACTIVE | DISPLAY_BG3_ACTIVE;
 #ifdef BITPL_SCR
-	if (((u32) Screen_atari) == 0x06020000) {
-		REG_BG2CNT |= 0x10;
-		REG_BG3CNT |= 0x10;
-	} else {
-		REG_BG2CNT &= ~0x10;
-		REG_BG3CNT &= ~0x10;
-	}
+		if (((u32) Screen_atari) == 0x06020000) {
+			REG_BG2CNT |= 0x10;
+			REG_BG3CNT |= 0x10;
+		} else {
+			REG_BG2CNT &= ~0x10;
+			REG_BG3CNT &= ~0x10;
+		}
 #endif
+	} else {
+		REG_DISPCNT = MODE_5_2D | DISPLAY_BG2_ACTIVE;
+#ifdef BITPL_SCR
+		if (((u32) Screen_atari) == 0x06020000) {
+			REG_BG2CNT |= 0x10;
+		} else {
+			REG_BG2CNT &= ~0x10;
+		}
+#endif
+	}
+
+	if (sx != oldSx || sy != oldSy || offset_left != oldVsol || offset_top != oldVsot)
+	{
+		oldSx = sx;
+		oldSy = sy;
+		oldVsol = offset_left;
+		oldVsot = offset_top;
+
+		REG_BG2PA = sx;
+		REG_BG2PB = 0;
+		REG_BG2PC = 0;
+		REG_BG2PD = sy;
+
+		REG_BG3PA = sx;
+		REG_BG3PB = 0;
+		REG_BG3PC = 0;
+		REG_BG3PD = sy;
+
+		REG_BG2X = 0 + (offset_left * 256);
+		REG_BG3X = 64 + (offset_left * 256);
+		REG_BG2Y = 0 + (offset_top * 256);
+		REG_BG3Y = 64 + (offset_top * 256);
+	}
 
 	if (NDS_ShouldDrawKeyboard) {
 		u8 *dst = (u8*) (0x06200000 + 256*192 - 256*64);
@@ -71,7 +118,7 @@ void NDS_InitVideo(void)
 	powerOff(POWER_3D_CORE | POWER_MATRIX);
 
 	// init main engine
-	videoSetMode(MODE_5_2D | DISPLAY_BG2_ACTIVE | DISPLAY_BG3_ACTIVE);
+	REG_DISPCNT = MODE_5_2D | DISPLAY_BG2_ACTIVE | DISPLAY_BG3_ACTIVE;
 	vramSetPrimaryBanks(
 		VRAM_A_MAIN_BG_0x06000000,
 		VRAM_B_MAIN_BG_0x06020000,
@@ -171,45 +218,8 @@ int PLATFORM_WindowMaximised(void)
 	return 1;
 }
 
-static s16 oldSx = 0, oldSy = 0;
-static int oldVsol = 0;
-static int oldVsot = 0;
-
 void PLATFORM_DisplayScreen(void)
 {
-	s16 sx = VIDEOMODE_src_width;
-	s16 sy = VIDEOMODE_src_height * 4 / 3;
-	int offset_left = VIDEOMODE_src_offset_left;
-	int offset_top = VIDEOMODE_src_offset_top;
-
-	static int i = 0;
-	i++;
-
-	if (sx != oldSx || sy != oldSy || offset_left != oldVsol || offset_top != oldVsot)
-	{
-		oldSx = sx;
-		oldSy = sy;
-		oldVsol = offset_left;
-		oldVsot = offset_top;
-
-		swiWaitForVBlank();
-
-		REG_BG2PA = sx;
-		REG_BG2PB = 0;
-		REG_BG2PC = 0;
-		REG_BG2PD = sy;
-
-		REG_BG3PA = sx;
-		REG_BG3PB = 0;
-		REG_BG3PC = 0;
-		REG_BG3PD = sy;
-
-		REG_BG2X = 0 + (offset_left * 256);
-		REG_BG3X = 64 + (offset_left * 256);
-		REG_BG2Y = 0 + (offset_top * 256);
-		REG_BG3Y = 64 + (offset_top * 256);
-	}
-
 #ifdef NDS_SCREEN_IN_VRAM
 	if (UI_is_active) {
 		while (DMA_CR(3) & DMA_BUSY);
@@ -217,6 +227,7 @@ void PLATFORM_DisplayScreen(void)
 #ifdef BITPL_SCR
 		memcpy(Screen_atari_b, Screen_atari, Screen_WIDTH*Screen_HEIGHT);
 #endif
+		swiWaitForVBlank();
 
 		DMA_SRC(3) = (u32) Screen_atari_ui;
 		DMA_DEST(3) = 0x06000000;
@@ -230,12 +241,13 @@ void PLATFORM_DisplayScreen(void)
 	}
 #else
 	while (DMA_CR(3) & DMA_BUSY);
-	swiWaitForVBlank();
 
 	DMA_SRC(3) = (u32) Screen_atari;
 	DMA_DEST(3) = 0x06000000;
 	DMA_CR(3) = DMA_ENABLE | DMA_32_BIT | DMA_START_NOW | (Screen_HEIGHT << 7);
 
+#ifndef BITPL_SCR
 	while (DMA_CR(3) & DMA_BUSY);
+#endif
 #endif
 }

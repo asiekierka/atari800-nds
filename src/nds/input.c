@@ -37,7 +37,7 @@
 
 int key_control;
 int current_key_down = AKEY_NONE;
-int dpad_as_keyboard = 0;
+s8 dpad_as_keyboard = 0;
 double key_down_time = 0;
 
 #define WARMSTART_HOLD_TIME 3
@@ -75,7 +75,7 @@ touch_area_t NDS_touch_areas_key[] = {
 	{ 214, 119, 18, 18, AKEY_EQUAL, 0 },
 	{ 231, 119, 25, 18, AKEY_RETURN, 0 },
 
-	{ 0, 136, 31, 22, AKEY_CTRL, 0 },
+	{ 0, 136, 31, 18, AKEY_CTRL, 0 },
 	{ 30, 136, 18, 18, AKEY_a, 0 },
 	{ 47, 136, 18, 18, AKEY_s, 0 },
 	{ 64, 136, 18, 18, AKEY_d, 0 },
