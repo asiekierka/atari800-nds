@@ -149,6 +149,7 @@ int POKEYSND_bienias_fix = FALSE;
 int POKEYSND_enable_new_pokey = TRUE;
 int POKEYSND_bienias_fix = TRUE;  /* when TRUE, high frequencies get emulated: better sound but slower */
 #endif
+
 #if defined(__PLUS) && !defined(_WX_)
 #define BIENIAS_FIX (g_Sound.nBieniasFix)
 #else
