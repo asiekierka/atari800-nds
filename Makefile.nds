@@ -6,7 +6,9 @@ ifeq ($(strip $(DEVKITARM)),)
 $(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
 endif
 
-BASE_CFLAGS	:=	-g -Wall -D_GNU_SOURCE \
+ARCH	:=	-mthumb-interwork -march=armv5te -mtune=arm946e-s
+
+BASE_CFLAGS	:=	-g -Wall -D_GNU_SOURCE -flto \
 			-fomit-frame-pointer -ffast-math \
 			$(ARCH)
 
@@ -43,8 +45,8 @@ INCLUDES	:=	src
 GAME_ICON	:=	$(TOPDIR)/src/nds/icon.bmp
 
 GAME_TITLE := atari800-nds
-GAME_SUBTITLE1 := 0.1.0
-GAME_SUBTITLE2 := 2019/09/01
+GAME_SUBTITLE1 := 0.2.0
+GAME_SUBTITLE2 := 2020/01/27
 
 #	src/af80.c \
 #	src/bit3.c \
@@ -55,6 +57,7 @@ GAME_SUBTITLE2 := 2019/09/01
 #	src/pbi_mio.c \
 #	src/pbi_xld.c \
 #	src/rdevice.c \
+#	src/remez.c \
 #	src/voicebox.c \
 #	src/xep80.c \
 #	src/xep80_fonts.c \
@@ -112,7 +115,6 @@ FAST_SOURCES = \
 	src/pia.c \
 	src/pokey.c \
 	src/pokeysnd.c \
-	src/remez.c \
 	src/screen.c \
 	src/sound.c \
 	src/util.c \
@@ -125,7 +127,6 @@ SOURCES = $(SMALL_SOURCES) $(FAST_SOURCES)
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-ARCH	:=	-mthumb-interwork -march=armv5te -mtune=arm946e-s
 
 CXXFLAGS	:= $(BASE_CFLAGS) -fno-rtti -fno-exceptions
 ASFLAGS	:=	-g $(ARCH)
