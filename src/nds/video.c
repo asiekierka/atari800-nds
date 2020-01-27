@@ -39,6 +39,7 @@
 #include "videomode.h"
 
 #include "keyboard.h"
+#include "keyboard5200.h"
 
 VIDEOMODE_MODE_t NDS_VIDEO_mode;
 
@@ -48,8 +49,41 @@ void NDS_DrawKeyboard(u8 *dst, u8 *src, u8 *tmp);
 static s16 oldSx = 0, oldSy = 0;
 static int oldVsol = 0;
 static int oldVsot = 0;
+static u8 oldKbdOverlayId = 255;
 
 s8 video_scaler_mode = VIDEO_SCALER_MODE_BLENDED;
+
+static void updateVideoSettings(void)
+{
+	u8 kbdOverlayId = NDS_GetKbdOverlayId();
+
+	if (oldKbdOverlayId != kbdOverlayId) {
+		const unsigned int *bitmap;
+		const unsigned short *palette;
+		switch (kbdOverlayId) {
+			case KBD_OVERLAY_NORMAL:
+				bitmap = keyboardBitmap;
+				palette = keyboardPal;
+				break;
+			case KBD_OVERLAY_5200:
+				bitmap = keyboard5200Bitmap;
+				palette = keyboard5200Pal;
+				break;
+		}
+
+		swiWaitForVBlank();
+		videoSetModeSub(MODE_3_2D);
+
+		for (int i = 0; i < 256; i++)
+			BG_PALETTE_SUB[i] = palette[i];
+		decompress(bitmap, (u8*) 0x06200000, LZ77Vram);
+
+		swiWaitForVBlank();
+		videoSetModeSub(MODE_3_2D | DISPLAY_BG3_ACTIVE);
+
+		oldKbdOverlayId = kbdOverlayId;
+	}
+}
 
 static void vblankHandler(void)
 {
@@ -133,7 +167,7 @@ void NDS_InitVideo(void)
 	REG_BLDALPHA = 0x808;
 
 	// init sub engine
-	videoSetModeSub(MODE_3_2D | DISPLAY_BG3_ACTIVE);
+	videoSetModeSub(MODE_3_2D);
 
 	REG_BG3CNT_SUB = BG_PRIORITY_0 | BG_BMP8_256x256;
 	REG_BG3PA_SUB = 256;
@@ -142,11 +176,6 @@ void NDS_InitVideo(void)
 	REG_BG3PD_SUB = 256;
 	REG_BG3X_SUB = 0;
 	REG_BG3Y_SUB = 0;
-
-	for (int i = 0; i < keyboardPalLen>>1; i++)
-		BG_PALETTE_SUB[i] = keyboardPal[i];
-
-	decompress(keyboardBitmap, (u8*) 0x06200000, LZ77Vram);
 
 	// set IRQs
 	irqSet(IRQ_VBLANK, vblankHandler);
@@ -220,24 +249,26 @@ int PLATFORM_WindowMaximised(void)
 
 void PLATFORM_DisplayScreen(void)
 {
+	updateVideoSettings();
+
 #ifdef NDS_SCREEN_IN_VRAM
 	if (UI_is_active) {
 		while (DMA_CR(3) & DMA_BUSY);
 
 #ifdef BITPL_SCR
 		memcpy(Screen_atari_b, Screen_atari, Screen_WIDTH*Screen_HEIGHT);
-#endif
+#endif /* BITPL_SCR */
 		swiWaitForVBlank();
 
 		DMA_SRC(3) = (u32) Screen_atari_ui;
 		DMA_DEST(3) = 0x06000000;
-		DMA_CR(3) = DMA_ENABLE | DMA_32_BIT | DMA_START_VBL | (Screen_HEIGHT << 7);
+		DMA_CR(3) = DMA_ENABLE | DMA_32_BIT | DMA_START_NOW | (Screen_HEIGHT << 7);
 #ifdef BITPL_SCR
 	} else {
 		unsigned int *Screen_atari_old = Screen_atari;
 		Screen_atari = Screen_atari_b;
 		Screen_atari_b = Screen_atari_old;
-#endif
+#endif /* BITPL_SCR */
 	}
 #else
 	while (DMA_CR(3) & DMA_BUSY);
@@ -248,6 +279,6 @@ void PLATFORM_DisplayScreen(void)
 
 #ifndef BITPL_SCR
 	while (DMA_CR(3) & DMA_BUSY);
-#endif
-#endif
+#endif /* BITPL_SCR */
+#endif /* NDS_SCREEN_IN_VRAM */
 }

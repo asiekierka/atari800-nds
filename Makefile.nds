@@ -65,7 +65,8 @@ GAME_SUBTITLE2 := 2020/01/27
 #	src/filter_ntsc.c \
 
 GRAPHICS = \
-	src/nds/keyboard.png
+	src/nds/keyboard.png \
+	src/nds/keyboard5200.png
 
 SMALL_SOURCES = \
 	src/afile.c \
