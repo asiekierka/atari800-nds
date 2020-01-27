@@ -115,32 +115,29 @@ touch_area_t NDS_touch_areas_key[] = {
 
 #define NDS_TOUCH_AREA_KEY_MAX (sizeof(NDS_touch_areas_key) / sizeof(touch_area_t))
 
-/* touch_area_t NDS_touch_areas_5200[] = {
-	{ 95, 73, 38, 22, AKEY_5200_1, 0 },
-	{ 141, 73, 38, 22, AKEY_5200_2, 0 },
-	{ 187, 73, 38, 22, AKEY_5200_3, 0 },
-	{ 95, 109, 38, 22, AKEY_5200_4, 0 },
-	{ 141, 109, 38, 22, AKEY_5200_5, 0 },
-	{ 187, 109, 38, 22, AKEY_5200_6, 0 },
-	{ 95, 145, 38, 22, AKEY_5200_7, 0 },
-	{ 141, 145, 38, 22, AKEY_5200_8, 0 },
-	{ 187, 145, 38, 22, AKEY_5200_9, 0 },
-	{ 95, 181, 38, 22, AKEY_5200_ASTERISK, 0 },
-	{ 141, 181, 38, 22, AKEY_5200_0, 0 },
-	{ 187, 181, 38, 22, AKEY_5200_HASH, 0 }
-}; */
+touch_area_t NDS_touch_areas_5200[] = {
+	{ 55, 5, 44, 36, AKEY_5200_1, 0 },
+	{ 104, 5, 44, 36, AKEY_5200_2, 0 },
+	{ 153, 5, 44, 36, AKEY_5200_3, 0 },
+	{ 55, 53, 44, 36, AKEY_5200_4, 0 },
+	{ 104, 53, 44, 36, AKEY_5200_5, 0 },
+	{ 153, 53, 44, 36, AKEY_5200_6, 0 },
+	{ 55, 101, 44, 36, AKEY_5200_7, 0 },
+	{ 104, 101, 44, 36, AKEY_5200_8, 0 },
+	{ 153, 101, 44, 36, AKEY_5200_9, 0 },
+	{ 55, 149, 44, 36, AKEY_5200_ASTERISK, 0 },
+	{ 104, 149, 44, 36, AKEY_5200_0, 0 },
+	{ 153, 149, 44, 36, AKEY_5200_HASH, 0 }
+};
 
-// #define NDS_TOUCH_AREA_5200_MAX (sizeof(NDS_touch_areas_5200) / sizeof(touch_area_t))
+#define NDS_TOUCH_AREA_5200_MAX (sizeof(NDS_touch_areas_5200) / sizeof(touch_area_t))
 
-/* #define NDS_TOUCH_AREAS ((Atari800_machine_type == Atari800_MACHINE_5200 && !UI_is_active) \
+#define NDS_TOUCH_AREAS ((Atari800_machine_type == Atari800_MACHINE_5200 && !UI_is_active) \
 		? NDS_touch_areas_5200 : NDS_touch_areas_key)
 #define NDS_TOUCH_AREA_MAX ((Atari800_machine_type == Atari800_MACHINE_5200 && !UI_is_active) \
-		? NDS_TOUCH_AREA_5200_MAX : NDS_TOUCH_AREA_KEY_MAX) */
+		? NDS_TOUCH_AREA_5200_MAX : NDS_TOUCH_AREA_KEY_MAX)
 
-#define NDS_TOUCH_AREAS NDS_touch_areas_key
-#define NDS_TOUCH_AREA_MAX NDS_TOUCH_AREA_KEY_MAX
-
-bool NDS_IsControlPressed()
+bool NDS_IsControlPressed(void)
 {
 	return key_control != 0;
 }
@@ -177,10 +174,17 @@ static void copyTexture(u8 *dst, u8 *src, int x, int y, int w, int h)
 		*(u16*)(dst) = *(u16*)(src);
 }
 
+u8 NDS_GetKbdOverlayId(void) {
+	return (NDS_TOUCH_AREAS == NDS_touch_areas_5200) ? KBD_OVERLAY_5200 : KBD_OVERLAY_NORMAL;
+}
+
 DTCM_DATA int NDS_ShouldDrawKeyboard = 0;
 
 void NDS_DrawKeyboard(u8 *dst, u8 *src, u8 *tmp)
 {
+	if (NDS_GetKbdOverlayId() == KBD_OVERLAY_5200)
+		return;
+
 	touch_area_t* keyTable = NDS_TOUCH_AREAS;
 	int keyTableLen = NDS_TOUCH_AREA_MAX;
 
