@@ -50,7 +50,7 @@ extern s8 video_scaler_mode;
 static int cfg_read_s8(char *option, char *parameters, const char *desired_option, s8 *desired_location)
 {
 	if (strcmp(option, desired_option) == 0) {
-		sscanf(parameters, "%hhd", desired_location);
+		siscanf(parameters, "%hhd", desired_location);
 		return 1;
 	}
 	return 0;
