@@ -109,6 +109,9 @@ case $host_os in
     linux | linux-gnu)
         a8_host="linux"
         ;;
+    darwin*)
+        a8_host="macos"
+        ;;
     mint)
         if [[ "$a8_target" = "firebee" ]]; then
             a8_host=firebee
@@ -169,6 +172,14 @@ if [[ "$a8_target" = "android" ]]; then
 	with_readline=no
 	WANT_EVENT_RECORDING=no
 	AC_DEFINE(HAVE_GETTIMEOFDAY,1)
+
+	# Take care of the ndk-build script name difference on Windows version of Android NDK.
+	if [[ "$build_os" = "cygwin" -o "$build_os" = "mingw32" ]]; then
+		NDK_BUILD=ndk-build.cmd
+	else
+		NDK_BUILD=ndk-build
+	fi
+	AC_SUBST(NDK_BUILD)
 fi
 if [[ "$a8_host" = "falcon" ]]; then
 	CFLAGS="-m68020-60 -O2 -fomit-frame-pointer -Wall"
@@ -211,11 +222,12 @@ AC_DEFUN([TRY_USE_SDL],
             LIBS="$LIBS $SDL_LIBS"
             CPPFLAGS="$CPPFLAGS $SDL_CFLAGS"
             if [[ "$a8_host" = "win" ]]; then
-dnl Don't redefine main -- SDL.h will do it for us in atari_sdl.c Otherwise
-dnl the autoconf tests don't work.
+dnl Defer redefinition of main - do it later, in src/Makefile.am. Otherwise
+dnl the autoconf tests would not work.
                 CPPFLAGS=${CPPFLAGS/-Dmain=SDL_main/}
-dnl Avoid making stdout.txt on Windows sdl target by compiling our own SDL_main
-dnl Get SDL_win32_main.c from the SDL source and copy it to the src directory.
+dnl Avoid making stdout.txt on Windows sdl target by discarding libSDLmain and
+dnl compiling our own src/sdl/SDL_win32_main.c (copied from libSDL dources),
+dnl with the NO_STDIO_REDIRECT macro defined.
                 LIBS=${LIBS/-lSDLmain/}
                 CPPFLAGS="$CPPFLAGS -DNO_STDIO_REDIRECT"
 dnl Don't make this a windowed app, make it a console app.
@@ -1123,7 +1135,7 @@ fi
 
 dnl Check for availability of the OpenGL header.
 AC_ARG_WITH(opengl,
-    AC_HELP_STRING(--with-opengl,[Use OpenGL for graphics - only in SDL target @<:@default=check@:>@]),
+    AC_HELP_STRING(--with-opengl,[Build support for OpenGL hardware video acceleration - only in SDL target @<:@default=check@:>@]),
     [],
     [with_opengl=check])
 
@@ -1148,6 +1160,10 @@ fi
 
 if [[ "$with_opengl" = "yes" ]]; then
     AC_DEFINE(HAVE_OPENGL, 1, [Support for OpenGL graphics acceleration.])
+    A8_OPTION(opengl-by-default,no,
+              [Set VIDEO_ACCEL=1 in the config file created on first run after installation to enable OpenGL hardware acceleration (OpenGL-aware targets) (default set VIDEO_ACCEL=0)],
+              VIDEO_ACCEL_ON_BY_DEFAULT,[Define for targets too slow to run without OpenGL video acceleration, supported only with --with-opengl]
+             )
 fi
 AM_CONDITIONAL([WITH_OPENGL], test "$with_opengl" = "yes")
 
@@ -1204,13 +1220,15 @@ if [[ "$SUPPORTS_RDEVICE" = "yes" ]]; then
                  [Use IP network connection with the R: networking device (Linux/Unix/Win32) (default=ON)],
                  R_NETWORK,[Define to use IP network connection with the R: device.]
                 )
-        if [[ "$a8_host" != "win" ]]; then
+        if [[ "$a8_host" != "win" -a "$a8_host" != "macos" ]]; then
             A8_OPTION(rserial,yes,
                      [Use the host serial port with the R: networking device (Linux/Unix only) (default=ON)],
                      R_SERIAL,[Define to use the host serial port with the R: device.]
                     )
-        else
-            A8_NEED_LIB(ws2_32)
+        else 
+            if [[ "$a8_host" = "win" ]]; then
+                A8_NEED_LIB(ws2_32)
+            fi
             WANT_R_SERIAL="no"
         fi
     fi
@@ -1230,6 +1248,7 @@ AC_CONFIG_FILES([
 Makefile
 DOC/Makefile
 src/Makefile
+tools/Makefile
 ])
 if [[ "$a8_target" = "android" ]]; then
 	AC_CONFIG_FILES(src/android/jni/Android.mk)
@@ -1310,9 +1329,9 @@ if [[ "$a8_target" = "windx" ]]; then
 fi
 if [[ "$SUPPORTS_RDEVICE" = "yes" ]]; then
     echo "Using R: device?......................: $WANT_R_IO_DEVICE"
-        if [[ "$a8_host" != "win" -a "$WANT_R_IO_DEVICE" = "yes" ]]; then
-            echo "Using R: with the host serial port?...: $WANT_R_SERIAL"
-            echo "Using R: with IP network support......: $WANT_R_NETWORK"
+        if [[ "$a8_host" != "win" -a "$a8_host" != "macos" -a "$WANT_R_IO_DEVICE" = "yes" ]]; then
+            echo "    Using R: with the host serial port?...: $WANT_R_SERIAL"
+            echo "    Using R: with IP network support......: $WANT_R_NETWORK"
         fi
 fi
 if [[ "$a8_target" = default -a "$with_video" = sdl ]]; then

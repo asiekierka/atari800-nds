@@ -72,6 +72,7 @@ SMALL_SOURCES = \
 	src/afile.c \
 	src/artifact.c \
 	src/binload.c \
+	src/cartridge_info.c \
 	src/cfg.c \
 	src/colours.c \
 	src/colours_external.c \
