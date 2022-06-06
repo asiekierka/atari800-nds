@@ -45,8 +45,8 @@ INCLUDES	:=	src
 GAME_ICON	:=	$(TOPDIR)/src/nds/icon.bmp
 
 GAME_TITLE := atari800-nds
-GAME_SUBTITLE1 := 0.2.0
-GAME_SUBTITLE2 := 2020/01/27
+GAME_SUBTITLE1 := 0.2.1
+GAME_SUBTITLE2 := 2022/06/06
 
 #	src/af80.c \
 #	src/bit3.c \
