@@ -88,7 +88,6 @@ SMALL_SOURCES = \
 	src/pbi_scsi.c \
 	src/rtime.c \
 	src/sio.c \
-	src/sndsave.c \
 	src/statesav.c \
 	src/sysrom.c \
 	src/ui.c \

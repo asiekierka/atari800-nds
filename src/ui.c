@@ -1279,7 +1279,7 @@ static void CartManagement(void)
 	}
 }
 
-#if defined(SOUND) && !defined(DREAMCAST)
+#if defined(SOUND) && !defined(DREAMCAST) && !defined(NDS)
 static void SoundRecording(void)
 {
 	if (!Sound_enabled) {
@@ -4163,7 +4163,7 @@ static int SoundSettings(void)
 
 #endif /* SOUND */
 
-#if !defined(CURSES_BASIC) && !defined(DREAMCAST)
+#if !defined(CURSES_BASIC) && !defined(DREAMCAST) && !defined(NDS)
 
 static void Screenshot(int interlaced)
 {
@@ -4306,7 +4306,7 @@ void UI_Run(void)
 		UI_MENU_SUBMENU_ACCEL(UI_MENU_SYSTEM, "System Settings", "Alt+Y"),
 #ifdef SOUND
 		UI_MENU_SUBMENU_ACCEL(UI_MENU_SOUND, "Sound Settings", "Alt+O"),
-#ifndef DREAMCAST
+#if !defined(DREAMCAST) && !defined(NDS)
 		UI_MENU_ACTION_ACCEL(UI_MENU_SOUND_RECORDING, "Sound Recording Start/Stop", "Alt+W"),
 #endif
 #endif
@@ -4325,7 +4325,7 @@ void UI_Run(void)
 		UI_MENU_SUBMENU(UI_MENU_SETTINGS, "Emulator Configuration"),
 		UI_MENU_FILESEL_ACCEL(UI_MENU_SAVESTATE, "Save State", "Alt+S"),
 		UI_MENU_FILESEL_ACCEL(UI_MENU_LOADSTATE, "Load State", "Alt+L"),
-#if !defined(CURSES_BASIC) && !defined(DREAMCAST)
+#if !defined(CURSES_BASIC) && !defined(DREAMCAST) && !defined(NDS)
 #ifdef HAVE_LIBPNG
 		UI_MENU_FILESEL_ACCEL(UI_MENU_PCX, "Save Screenshot", "F10"),
 		/* there isn't enough space for "PNG/PCX Interlaced Screenshot Shift+F10" */
@@ -4435,7 +4435,7 @@ void UI_Run(void)
 				done = TRUE;	/* reboot immediately */
 			}
 			break;
-#ifndef DREAMCAST
+#if !defined(DREAMCAST) && !defined(NDS)
 		case UI_MENU_SOUND_RECORDING:
 			SoundRecording();
 			break;
@@ -4458,7 +4458,7 @@ void UI_Run(void)
 		case UI_MENU_DISPLAY:
 			DisplaySettings();
 			break;
-#ifndef DREAMCAST
+#if !defined(DREAMCAST) && !defined(NDS)
 		case UI_MENU_PCX:
 			Screenshot(FALSE);
 			break;

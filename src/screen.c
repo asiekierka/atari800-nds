@@ -753,7 +753,7 @@ void Screen_Draw1200LED(void)
 	}
 }
 
-#ifndef DREAMCAST
+#if !defined(DREAMCAST) && !defined(NDS)
 #if defined(SOUND) || defined(VIDEO_RECORDING)
 /* Returns screen address for placing the next character on the left of the
    drawn number. */

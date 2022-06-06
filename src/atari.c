@@ -1306,12 +1306,14 @@ void Atari800_Frame(void)
 #endif
 		break;
 #ifndef CURSES_BASIC
+#ifndef NDS
 	case AKEY_SCREENSHOT:
 		Screen_SaveNextScreenshot(FALSE);
 		break;
 	case AKEY_SCREENSHOT_INTERLACE:
 		Screen_SaveNextScreenshot(TRUE);
 		break;
+#endif
 #endif /* CURSES_BASIC */
 	case AKEY_PBI_BB_MENU:
 #ifdef PBI_BB
@@ -1374,7 +1376,7 @@ void Atari800_Frame(void)
 #ifdef SOUND
 	Sound_Update();
 #endif
-#if defined(MULTIMEDIA) && (!defined(BASIC) && !defined(CURSES_BASIC))
+#if defined(MULTIMEDIA) && (!defined(BASIC) && !defined(CURSES_BASIC)) && !defined(NDS)
 	/* multimedia stats are drawn here so they don't get recorded in the video */
 	Screen_DrawMultimediaStats();
 #endif
