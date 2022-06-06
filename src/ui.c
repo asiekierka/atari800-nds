@@ -3956,7 +3956,7 @@ void UI_Run(void)
 		UI_MENU_SUBMENU_ACCEL(UI_MENU_SYSTEM, "System Settings", "Alt+Y"),
 #ifdef SOUND
 		UI_MENU_SUBMENU_ACCEL(UI_MENU_SOUND, "Sound Settings", "Alt+O"),
-#ifndef DREAMCAST
+#if !defined(DREAMCAST) && !defined(NDS)
 		UI_MENU_ACTION_ACCEL(UI_MENU_SOUND_RECORDING, "Sound Recording Start/Stop", "Alt+W"),
 #endif
 #endif
