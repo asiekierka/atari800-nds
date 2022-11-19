@@ -133,7 +133,7 @@ CXXFLAGS	:= $(BASE_CFLAGS) -fno-rtti -fno-exceptions
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=ds_arm9.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-LIBS := -lfat -lmm9 -lnds9 -lz -lm
+LIBS := -lfat -lmm9 -lnds9 -lm
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -201,7 +201,8 @@ $(BUILD):
 clean:
 	@echo clean ...
 	@rm -fr $(BUILD) $(TARGET).nds $(TARGET).elf
-
+	@rm -fr src/*.d src/*.o src/nds/*.d src/nds/*.o src/codecs/*.d src/codecs/*.o
+	@rm -fr src/roms/*.d src/roms/*.o
 
 #---------------------------------------------------------------------------------
 else

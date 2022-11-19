@@ -90,7 +90,7 @@
 #include "colours.h"
 #include "screen.h"
 #endif
-#if !defined(DREAMCAST) && defined(MULTIMEDIA)
+#if defined(AUDIO_RECORDING) || defined(VIDEO_RECORDING)
 #include "file_export.h"
 #endif
 #ifndef BASIC
@@ -809,7 +809,7 @@ int Atari800_Initialise(int *argc, char *argv[])
 #if !defined(BASIC) && !defined(CURSES_BASIC)
 		|| !Screen_Initialise(argc, argv)
 		|| !UI_Initialise(argc, argv)
-#if !defined(DREAMCAST) && defined(MULTIMEDIA)
+#if defined(AUDIO_RECORDING) || defined(VIDEO_RECORDING)
 		|| !File_Export_Initialise(argc, argv)
 #endif
 #endif
@@ -1040,7 +1040,7 @@ int Atari800_Exit(int run_monitor)
 #ifdef R_IO_DEVICE
 		RDevice_Exit(); /* R: Device cleanup */
 #endif
-#if !defined(DREAMCAST) && defined(MULTIMEDIA)
+#if defined(AUDIO_RECORDING) || defined(VIDEO_RECORDING)
 		File_Export_StopRecording();
 #endif
 		MONITOR_Exit();
@@ -1305,8 +1305,7 @@ void Atari800_Frame(void)
 		Sound_Continue();
 #endif
 		break;
-#ifndef CURSES_BASIC
-#ifndef NDS
+#ifdef SCREENSHOTS
 	case AKEY_SCREENSHOT:
 		Screen_SaveNextScreenshot(FALSE);
 		break;
@@ -1314,7 +1313,6 @@ void Atari800_Frame(void)
 		Screen_SaveNextScreenshot(TRUE);
 		break;
 #endif
-#endif /* CURSES_BASIC */
 	case AKEY_PBI_BB_MENU:
 #ifdef PBI_BB
 		PBI_BB_Menu();
@@ -1376,7 +1374,7 @@ void Atari800_Frame(void)
 #ifdef SOUND
 	Sound_Update();
 #endif
-#if defined(MULTIMEDIA) && (!defined(BASIC) && !defined(CURSES_BASIC)) && !defined(NDS)
+#if defined(AUDIO_RECORDING) || defined(VIDEO_RECORDING)
 	/* multimedia stats are drawn here so they don't get recorded in the video */
 	Screen_DrawMultimediaStats();
 #endif

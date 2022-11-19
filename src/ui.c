@@ -82,7 +82,7 @@
 #include "pokeysnd.h"
 #include "sound.h"
 #endif /* SOUND */
-#if defined(SOUND) || defined(VIDEO_RECORDING)
+#if defined(AUDIO_RECORDING) || defined(VIDEO_RECORDING)
 #include "file_export.h"
 #endif /* defined(SOUND) || defined(VIDEO_RECORDING) */
 #ifdef DIRECTX
@@ -1279,7 +1279,7 @@ static void CartManagement(void)
 	}
 }
 
-#if defined(SOUND) && !defined(DREAMCAST) && !defined(NDS)
+#ifdef AUDIO_RECORDING
 static void SoundRecording(void)
 {
 	if (!Sound_enabled) {
@@ -1305,7 +1305,7 @@ static void SoundRecording(void)
 		UI_driver->fMessage("Recording stopped", 1);
 	}
 }
-#endif /* defined(SOUND) && !defined(DREAMCAST) */
+#endif /* AUDIO_RECORDING */
 
 #ifdef VIDEO_RECORDING
 static void VideoRecording(void)
@@ -4163,7 +4163,7 @@ static int SoundSettings(void)
 
 #endif /* SOUND */
 
-#if !defined(CURSES_BASIC) && !defined(DREAMCAST) && !defined(NDS)
+#ifdef SCREENSHOTS
 
 static void Screenshot(int interlaced)
 {
@@ -4222,7 +4222,9 @@ static void FunctionKeyHelp(void)
 		"F8  - Enter monitor        \0"
 		"      (-console required)  \0"
 		"F9  - Exit emulator        \0"
+#ifdef SCREENSHOTS
 		"F10 - Save screenshot      \0"
+#endif
 		"\n");
 }
 
@@ -4325,7 +4327,7 @@ void UI_Run(void)
 		UI_MENU_SUBMENU(UI_MENU_SETTINGS, "Emulator Configuration"),
 		UI_MENU_FILESEL_ACCEL(UI_MENU_SAVESTATE, "Save State", "Alt+S"),
 		UI_MENU_FILESEL_ACCEL(UI_MENU_LOADSTATE, "Load State", "Alt+L"),
-#if !defined(CURSES_BASIC) && !defined(DREAMCAST) && !defined(NDS)
+#if SCREENSHOTS
 #ifdef HAVE_LIBPNG
 		UI_MENU_FILESEL_ACCEL(UI_MENU_PCX, "Save Screenshot", "F10"),
 		/* there isn't enough space for "PNG/PCX Interlaced Screenshot Shift+F10" */
@@ -4435,7 +4437,7 @@ void UI_Run(void)
 				done = TRUE;	/* reboot immediately */
 			}
 			break;
-#if !defined(DREAMCAST) && !defined(NDS)
+#ifdef AUDIO_RECORDING
 		case UI_MENU_SOUND_RECORDING:
 			SoundRecording();
 			break;
@@ -4458,7 +4460,7 @@ void UI_Run(void)
 		case UI_MENU_DISPLAY:
 			DisplaySettings();
 			break;
-#if !defined(DREAMCAST) && !defined(NDS)
+#ifdef SCREENSHOTS
 		case UI_MENU_PCX:
 			Screenshot(FALSE);
 			break;

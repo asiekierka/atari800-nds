@@ -145,7 +145,7 @@
 /* #undef HAVE_LIBPNG */
 
 /* Define to 1 if you have the `z' library (-lz). */
-#define HAVE_LIBZ 1
+// #define HAVE_LIBZ 1
 
 /* Define to 1 if you have the `localtime' function. */
 #define HAVE_LOCALTIME 1
