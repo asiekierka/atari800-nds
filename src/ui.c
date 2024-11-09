@@ -2509,7 +2509,7 @@ static void VideoModeSettings(void)
 #endif /* HAVE_OPENGL */
 	static char scanlines_string[4];
 #endif /* GUI_SDL */
-#if NDS
+#if defined(NDS)
 	static const UI_tMenuItem nds_video_scaler_mode_array[] = {
 		UI_MENU_ACTION(0, "nearest"),
 		UI_MENU_ACTION(1, "blended"),
@@ -2547,7 +2547,7 @@ static void VideoModeSettings(void)
 		UI_MENU_SUBMENU_SUFFIX(17, "Scanlines visibility:", scanlines_string),
 		UI_MENU_CHECK(18, " Interpolate scanlines:"),
 #endif /* GUI_SDL */
-#if NDS
+#if defined(NDS)
 		UI_MENU_SUBMENU_SUFFIX(19, "Video scaler mode:", NULL),
 #endif /* NDS */
 		UI_MENU_END
@@ -2610,7 +2610,7 @@ static void VideoModeSettings(void)
 		}
 		snprintf(horiz_offset_string, sizeof(horiz_offset_string), "%d", VIDEOMODE_horizontal_offset);
 		snprintf(vert_offset_string, sizeof(vert_offset_string), "%d", VIDEOMODE_vertical_offset);
-#if NDS
+#if defined(NDS)
 		FindMenuItem(menu_array, 19)->suffix = nds_video_scaler_mode_array[video_scaler_mode].item;
 #endif /* NDS */
 
@@ -2819,7 +2819,7 @@ static void VideoModeSettings(void)
 			SDL_VIDEO_ToggleInterpolateScanlines();
 			break;
 #endif /* GUI_SDL */
-#if NDS
+#if defined(NDS)
 		case 19:
 			option2 = UI_driver->fSelect(NULL, UI_SELECT_POPUP, video_scaler_mode, nds_video_scaler_mode_array, NULL);
 			if (option2 >= 0)

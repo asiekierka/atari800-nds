@@ -108,7 +108,7 @@ UBYTE CPU_delayed_nmi;
 /* Windows headers define it */
 #undef ABSOLUTE
 
-#if !defined(__GNUC__) || defined(NDS)
+#if !defined(__GNUC__)
 #define NO_GOTO
 #endif
 
