@@ -68,6 +68,8 @@ void PLATFORM_ConfigSave(FILE *fp)
 	fprintf(fp, "NDS_VIDEO_SCALER_MODE=%d\n", video_scaler_mode);
 }
 
+static mm_word mm_mem_bank[1];
+
 int PLATFORM_Initialise(int *argc, char *argv[])
 {
 	TIMER0_CR &= ~TIMER_ENABLE;
@@ -85,7 +87,7 @@ int PLATFORM_Initialise(int *argc, char *argv[])
 	mm_ds_system sys;
 	sys.mod_count = 0;
 	sys.samp_count = 1;
-	sys.mem_bank = NULL;
+	sys.mem_bank = mm_mem_bank;
 	sys.fifo_channel = FIFO_MAXMOD;
 	mmInit(&sys);
 
