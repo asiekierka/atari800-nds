@@ -119,6 +119,8 @@ int PLATFORM_Exit(int run_monitor)
 
 int main(int argc, char **argv)
 {
+	defaultExceptionHandler();
+
 	if (!Atari800_Initialise(&argc, argv))
 	{
 		printf("Atari initialisation failed!");

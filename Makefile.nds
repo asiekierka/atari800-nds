@@ -45,8 +45,8 @@ INCLUDES	:=	src
 GAME_ICON	:=	$(TOPDIR)/src/nds/icon.bmp
 
 GAME_TITLE := atari800-nds
-GAME_SUBTITLE1 := 0.2.1
-GAME_SUBTITLE2 := 2022/06/06
+GAME_SUBTITLE1 := 0.2.2
+GAME_SUBTITLE2 := 2024/11/09
 
 #	src/af80.c \
 #	src/bit3.c \
@@ -72,6 +72,7 @@ SMALL_SOURCES = \
 	src/afile.c \
 	src/artifact.c \
 	src/binload.c \
+	src/cartridge_info.c \
 	src/cfg.c \
 	src/colours.c \
 	src/colours_external.c \
@@ -80,6 +81,7 @@ SMALL_SOURCES = \
 	src/compfile.c \
 	src/crc32.c \
 	src/esc.c \
+	src/file_export.c \
 	src/ide.c \
 	src/img_tape.c \
 	src/monitor.c \

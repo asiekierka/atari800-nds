@@ -69,6 +69,8 @@ static void updateVideoSettings(void)
 				bitmap = keyboard5200Bitmap;
 				palette = keyboard5200Pal;
 				break;
+			default:
+				return;
 		}
 
 		swiWaitForVBlank();
@@ -260,9 +262,14 @@ void PLATFORM_DisplayScreen(void)
 #endif /* BITPL_SCR */
 		swiWaitForVBlank();
 
+#ifdef __BLOCKSDS__
+		dmaSetParams(3, Screen_atari_ui, (void*) 0x06000000,
+			DMA_ENABLE | DMA_32_BIT | DMA_START_NOW | (Screen_HEIGHT << 7));
+#else
 		DMA_SRC(3) = (u32) Screen_atari_ui;
 		DMA_DEST(3) = 0x06000000;
 		DMA_CR(3) = DMA_ENABLE | DMA_32_BIT | DMA_START_NOW | (Screen_HEIGHT << 7);
+#endif
 #ifdef BITPL_SCR
 	} else {
 		unsigned int *Screen_atari_old = Screen_atari;
@@ -273,9 +280,14 @@ void PLATFORM_DisplayScreen(void)
 #else
 	while (DMA_CR(3) & DMA_BUSY);
 
+#ifdef __BLOCKSDS
+	dmaSetParams(3, Screen_atari, (void*) 0x06000000,
+		DMA_ENABLE | DMA_32_BIT | DMA_START_NOW | (Screen_HEIGHT << 7));
+#else
 	DMA_SRC(3) = (u32) Screen_atari;
 	DMA_DEST(3) = 0x06000000;
 	DMA_CR(3) = DMA_ENABLE | DMA_32_BIT | DMA_START_NOW | (Screen_HEIGHT << 7);
+#endif
 
 #ifndef BITPL_SCR
 	while (DMA_CR(3) & DMA_BUSY);
