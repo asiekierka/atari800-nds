@@ -91,7 +91,7 @@ FAST_SOURCES = \
 
 SOURCES = $(SMALL_SOURCES) $(FAST_SOURCES)
 
-INCLUDEDIRS := src src/nds src/roms
+INCLUDEDIRS := build/src/nds src src/nds src/roms
 
 # Defines passed to all files
 # ---------------------------
