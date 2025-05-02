@@ -437,7 +437,7 @@ int PLATFORM_Keyboard(void)
 	static int resize_w, resize_h;
 #endif /* HAVE_WINDOWS_H */
 
-#if !defined(SDL12_COMPAT_HEADERS) || SDL_VERSIONNUM >= 1270
+#if !defined(SDL12_COMPAT_HEADERS) /*|| SDL_VERSIONNUM >= 1270*/
 	/* Very ugly fix for SDL CAPSLOCK brokenness.  This will let the user
 	 * press CAPSLOCK and get a brief keypress on the Atari but it is not
 	 * possible to emulate holding down CAPSLOCK for longer periods with
@@ -792,8 +792,12 @@ int PLATFORM_Keyboard(void)
 		INPUT_key_consol &= ~INPUT_CONSOL_OPTION;
 	if (kbhits[KBD_SELECT])
 		INPUT_key_consol &= ~INPUT_CONSOL_SELECT;
-	if (kbhits[KBD_START])
+	if (kbhits[KBD_START]) {
 		INPUT_key_consol &= ~INPUT_CONSOL_START;
+		/* Special case: 5200's START is mapped to console START */
+		if (Atari800_machine_type == Atari800_MACHINE_5200 && !UI_is_active)
+			return AKEY_5200_START;
+	}
 
 	if (key_pressed == 0)
 		return AKEY_NONE;
@@ -860,8 +864,6 @@ int PLATFORM_Keyboard(void)
 	}
 
 	if (Atari800_machine_type == Atari800_MACHINE_5200 && !UI_is_active) {
-		if (lastkey == SDLK_F4)
-			return AKEY_5200_START;
 		switch (lastuni) {
 		case 'p':
 			return AKEY_5200_PAUSE;
